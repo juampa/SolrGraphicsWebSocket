@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Gestor de rendimiento en pruebas</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>  
+	</head>
+	<body>
+		<div id="datos"></div>
+		<script>
+			//Nos quedamos con los 10 ultimos datos.
+			var datos = new Array(10) ;
+			var puntero = 0 ;
+			var size = 10 ;
+
+  			var socket = io.connect('http://localhost:8000');
+  			socket.on('news', function (data) {
+    			console.log('desde el cliente:' + data);
+    			datos[puntero] = data ;
+    			puntero++ ;
+    			puntero%=size ;
+    			
+    			document.getElementById("datos").innerHTML = datos;
+    			//socket.emit('my other event', { my: 'data' });
+  			});
+  		</script>
+	</body>
+</html>
