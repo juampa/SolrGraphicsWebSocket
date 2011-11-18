@@ -14,8 +14,8 @@ presentación.
 
 ## Prerequisite
 * [node.js](http://nodejs.org)
-* OS with "[iostat](http://www.linuxcommand.org/man_pages/iostat1.html)".
 * [Socket.io](http://socket.io/#home)
+* Some file with numeric data to monitor. 
 
 ## Testing & Running
 
@@ -25,7 +25,7 @@ for i in {1..200} ; do valor=$[ ( $RANDOM % 100  ) + 1 ] ; echo $valor >> /tmp/p
 
 ## Todo
 
-* Instead of iostat use a "tail -f" to a Solr server log file.
+* Connect with a Solr server instead of a file with data.
 * Do the graphics...
 
 ## Thanks
