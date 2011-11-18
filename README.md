@@ -17,6 +17,12 @@ presentación.
 * OS with "[iostat](http://www.linuxcommand.org/man_pages/iostat1.html)".
 * [Socket.io](http://socket.io/#home)
 
+## Testing & Running
+
+To generate numbers you can use this little script:
+
+for i in {1..200} ; do valor=$[ ( $RANDOM % 100  ) + 1 ] ; echo $valor >> /tmp/pruebas ; sleep 1 ; done
+
 ## Todo
 
 * Instead of iostat use a "tail -f" to a Solr server log file.
