@@ -3,26 +3,98 @@
 	<head>
 		<title>Gestor de rendimiento en pruebas</title>
 		<script src="/socket.io/socket.io.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>  
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/mbostock/d3/master/d3.js"></script>
+		<style>
+			/* tell the SVG path to be a thin blue line without any area fill */
+			path {
+				stroke: steelblue;
+				stroke-width: 1;
+				fill: none;
+			}
+		</style>
+		
 	</head>
 	<body>
-		<div id="datos"></div>
+		<ul id="datosL"></ul>
+		<div id="graph" class="aGraph" style="width:300px; height:50px;"></div>
 		<script>
 			//Nos quedamos con los 10 ultimos datos.
-			var datos = new Array(10) ;
+			var datos = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 			var puntero = 0 ;
 			var size = 10 ;
 
   			var socket = io.connect('http://localhost:8000');
   			socket.on('news', function (data) {
-    			console.log('desde el cliente:' + data);
-    			datos[puntero] = data ;
-    			puntero++ ;
-    			puntero%=size ;
-    			
-    			document.getElementById("datos").innerHTML = datos;
+  			
+  				var objJSon = jQuery.parseJSON(data);
+    			console.log('desde el cliente:' + objJSon.value);
+    			if (puntero == 10) {
+    				 datos.shift();
+    				 datos.push(objJSon.value)
+    			} else {
+    				datos[puntero] = objJSon.value ;
+    			  	puntero++ ;
+    			  	}
+    			var lista = "";
+    			for(i = 0; i < datos.length ; i++) {  
+                    lista += "<li>"+ datos[i] +"</li>" ;  
+                }
+    			document.getElementById("datosL").innerHTML = lista;
     			//socket.emit('my other event', { my: 'data' });
   			});
+  			
+  			
+  			
+  			
+
+	function displayGraphExample(id, width, height, interpolation, updateDelay, transitionDelay) {
+		// create an SVG element inside the #graph div that fills 100% of the div
+		var graph = d3.select(id).append("svg:svg").attr("width", "100%").attr("height", "100%");
+
+		// create a simple data array that we'll plot with a line (this array represents only the Y values, X will just be the index location)
+		//var data = [3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 3, 6, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 2, 7, 5, 2, 1, 3, 8, 9, 2, 5, 9, 3, 6, 2, 7, 5, 2, 1, 3, 8, 9, 2, 9];
+
+		// X scale will fit values from 0-10 within pixels 0-100
+		var x = d3.scale.linear().domain([0, 10]).range([-5, width]); // starting point is -5 so the first value doesn't show and slides off the edge as part of the transition
+		// Y scale will fit values from 0-10 within pixels 0-100
+		var y = d3.scale.linear().domain([0, 100]).range([0, height]);
+
+		// create a line object that represents the SVN line we're creating
+		var line = d3.svg.line()
+			// assign the X function to plot our line as we wish
+			.x(function(d,i) { 
+				// verbose logging to show what's actually being done
+				//console.log('Plotting X value for data point: ' + d + ' using index: ' + i + ' to be at: ' + x(i) + ' using our xScale.');
+				// return the X coordinate where we want to plot this datapoint
+				return x(i); 
+			})
+			.y(function(d) { 
+				// verbose logging to show what's actually being done
+				//console.log('Plotting Y value for data point: ' + d + ' to be at: ' + y(d) + " using our yScale.");
+				// return the Y coordinate where we want to plot this datapoint
+				return y(d); 
+			})
+			.interpolate(interpolation)
+
+			// display the line by appending an svg:path element with the data line we created above
+			graph.append("svg:path").attr("d", line(datos));
+			// or it can be done like this
+			//graph.selectAll("path").data([data]).enter().append("svg:path").attr("d", line);
+
+			function redrawWithoutAnimation() {
+				// static update without animation
+				graph.selectAll("path")
+					.data([datos]) // set the new data
+					.attr("d", line); // apply the new data values
+			}
+
+			setInterval(function() {
+				redrawWithoutAnimation();
+			}, updateDelay);
+		}
+
+		displayGraphExample("#graph", 500, 50, "basis", 1000, 1000);
   		</script>
 	</body>
 </html>
